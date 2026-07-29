@@ -1,6 +1,5 @@
 import re
 import random
-from functools import total_ordering
 
 # Messing around with re to figure out how to add up dice for a ttrpg
 
