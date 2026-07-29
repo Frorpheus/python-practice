@@ -4,7 +4,7 @@ from functools import total_ordering
 
 # Messing around with re to figure out how to add up dice for a ttrpg
 
-text = "/1d20 + 1d1"
+text = "1d20 + 1d1"
 
 # Cleaning up user entry
 text_cleaned = text.replace(" ", "").lower()
@@ -13,16 +13,22 @@ text_cleaned = text.replace(" ", "").lower()
 # re goodness
 # The \d? means it looks for 0 to 1 digit
 # This just looks for the dice parts. Successfully ignores 'xd4'
-# added an "optional" [+-] in front so I can get the operands in too
+# addition 1: added an "optional" [+-] in front so I can get the operands in too
 pattern_dice = re.compile(r'[+-]?\dd\d\d?')
 matches_dice = pattern_dice.findall(text_cleaned)
 print(matches_dice)
 
-# # this looks for the operands.  They can only be '+' or '-'
+# # This looks for the operands.  They can only be '+' or '-'
+# # Obsolete after addition 1 above
 # pattern_operands = re.compile(r'[+-]')
 # matches_operands = pattern_operands.findall(text_cleaned)
 # print(matches_operands)
 
+# Working code  below:
+
+# Function to calculate the individual roll of dice - for example 2d20 would roll 2 x 20 faced dice and calculate
+# total. Independent of the operand in front from the user entry
+# TODO: Need to add a crit functionality on d20s if we need it
 def calculate_dice_roll(rolled: str) -> int:
     final = 0
     dices = int(rolled.split("d")[0])
@@ -37,9 +43,11 @@ def calculate_dice_roll(rolled: str) -> int:
 final_roll: int = 0
 
 for roll in matches_dice:
+    # Checks for the first set of rolls in case user never entered an operand and defaults to adding to total
     if roll[0] != "-" and roll[0] != "+":
         final_roll += calculate_dice_roll(roll)
     else:
+        # Saves the operand and either adds the dice rolls or subtracts them
         operation = roll[0]
         roll = roll.split(operation)[1]
 
