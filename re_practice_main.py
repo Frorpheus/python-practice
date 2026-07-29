@@ -3,17 +3,18 @@ import random
 
 # Messing around with re to figure out how to add up dice for a ttrpg
 
-text = "1d20 + 1d1"
+text = "1d1 -/ 5"
 
 # Cleaning up user entry
-text_cleaned = text.replace(" ", "").lower()
+text_cleaned = text.lower()
+text_cleaned = re.sub(r"[^0-9d+-]", "", text_cleaned)
 # print(text_cleaned)
 
 # re goodness
 # The \d? means it looks for 0 to 1 digit
 # This just looks for the dice parts. Successfully ignores 'xd4'
 # addition 1: added an "optional" [+-] in front so I can get the operands in too
-pattern_dice = re.compile(r'[+-]?\dd\d\d?')
+pattern_dice = re.compile(r'[+-]?\dd\d+|[+-]?\d+') # added "or" for regular additions/subtractions
 matches_dice = pattern_dice.findall(text_cleaned)
 print(matches_dice)
 
@@ -30,8 +31,14 @@ print(matches_dice)
 # TODO: Need to add a crit functionality on d20s if we need it
 def calculate_dice_roll(rolled: str) -> int:
     final = 0
-    dices = int(rolled.split("d")[0])
-    faces = int(rolled.split("d")[1])
+    if "d" in rolled:
+        dices = int(rolled.split("d")[0])
+        faces = int(rolled.split("d")[1])
+    else:
+        # this occurs if it's just a regular increase/decrease form attributes/modifiers/etc.
+        modifier = int(rolled)
+        final += modifier
+        return final
 
     for i in range(dices):
         final += random.randint(1, faces)
